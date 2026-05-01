@@ -361,8 +361,8 @@
       "gridPos": {
         "h": 7,
         "w": 12,
-        "x": 0,
-        "y": 39
+        "x": 12,
+        "y": 46
       },
       "id": 7,
       "options": {
@@ -387,7 +387,7 @@
           "refId": "B"
         }
       ],
-      "title": "WAN Traffic Rate (pppoe-wan, 5m)",
+      "title": "WAN Traffic (5m, bit/s)",
       "type": "timeseries"
     },
     {
@@ -405,7 +405,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 62
       },
       "id": 8,
       "options": {
@@ -430,7 +430,7 @@
           "refId": "B"
         }
       ],
-      "title": "LAN Traffic Rate (br-lan, 5m)",
+      "title": "LAN Traffic (5m, bit/s)",
       "type": "timeseries"
     },
     {
@@ -438,7 +438,7 @@
         "type": "prometheus",
         "uid": "dfjz2m1e86xogb"
       },
-      "description": "Monitors packet drops, carrier flaps, and TCP retransmissions. Investigate if drops > 0 pkt/s, flaps > 0 per hour, or retransmission rate > 2% (critical > 5%).",
+      "description": "Monitors packet drops across all interfaces except loopback. Investigate if drops > 0 pkt/s.",
       "fieldConfig": {
         "defaults": {
           "thresholds": {
@@ -450,7 +450,7 @@
               },
               {
                 "color": "orange",
-                "value": 0.000001
+                "value": 1e-06
               },
               {
                 "color": "red",
@@ -458,15 +458,15 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "pps"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 46
+        "w": 24,
+        "x": 0,
+        "y": 39
       },
       "id": 10,
       "options": {
@@ -481,22 +481,124 @@
       },
       "targets": [
         {
-          "expr": "sum by (device) (rate(node_network_receive_drop_total{job=\"openwrt-monitoring\",instance=\"$instance\",device=~\"pppoe-wan|br-lan|eth0|eth1\"}[5m])) + sum by (device) (rate(node_network_transmit_drop_total{job=\"openwrt-monitoring\",instance=\"$instance\",device=~\"pppoe-wan|br-lan|eth0|eth1\"}[5m]))",
+          "expr": "sum by (device) (rate(node_network_receive_drop_total{job=\"openwrt-monitoring\",instance=\"$instance\",device!=\"lo\"}[5m])) + sum by (device) (rate(node_network_transmit_drop_total{job=\"openwrt-monitoring\",instance=\"$instance\",device!=\"lo\"}[5m]))",
           "legendFormat": "{{device}} Drops (pkt/s)",
           "refId": "A"
+        }
+      ],
+      "title": "Interface Drops (5m, pkt/s)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "dfjz2m1e86xogb"
+      },
+      "description": "Monitors carrier state changes (flaps) per hour across all interfaces except loopback.",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
+          "unit": "none"
         },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 46
+      },
+      "id": 23,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
         {
-          "expr": "sum by (device) (increase(node_network_carrier_changes_total{job=\"openwrt-monitoring\",instance=\"$instance\",device=~\"pppoe-wan|br-lan|eth0|eth1\"}[1h]))",
-          "legendFormat": "{{device}} Carrier Flaps (per hour)",
-          "refId": "B"
+          "expr": "sum by (device) (increase(node_network_carrier_changes_total{job=\"openwrt-monitoring\",instance=\"$instance\",device!=\"lo\"}[1h]))",
+          "legendFormat": "{{device}} Flaps (changes/h)",
+          "refId": "A"
+        }
+      ],
+      "title": "Interface Carrier Flaps (1h, changes/h)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "dfjz2m1e86xogb"
+      },
+      "description": "Tracks TCP retransmission ratio. Investigate if retransmission rate > 2% (critical > 5%).",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "percent"
         },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 53
+      },
+      "id": 24,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
         {
           "expr": "100 * rate(node_netstat_Tcp_RetransSegs{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]) / clamp_min(rate(node_netstat_Tcp_OutSegs{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 1)",
           "legendFormat": "TCP Retransmission Rate (%)",
-          "refId": "C"
+          "refId": "A"
         }
       ],
-      "title": "Network Stability Watch (5m/1h)",
+      "title": "TCP Retransmissions (5m, %)",
       "type": "timeseries"
     },
     {
@@ -810,111 +912,8 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "dfjz2m1e86xogb"
-      },
-      "description": "WAN-specific quality trend. Warning when retransmission rate > 2% or drops > 0 pkt/s; critical when retransmission rate > 5% or sustained drops.",
-      "fieldConfig": {
-        "defaults": {
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 2
-              },
-              {
-                "color": "red",
-                "value": 5
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "TCP retransmit %"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "percent"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "WAN RX drops/s"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "ops"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "WAN TX drops/s"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "ops"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 39
-      },
-      "id": 13,
-      "options": {
-        "legend": {
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "expr": "100 * rate(node_netstat_Tcp_RetransSegs{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]) / clamp_min(rate(node_netstat_Tcp_OutSegs{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 1)",
-          "legendFormat": "TCP Retransmission Rate (%)",
-          "refId": "A"
-        },
-        {
-          "expr": "rate(node_network_receive_drop_total{job=\"openwrt-monitoring\",instance=\"$instance\",device=\"pppoe-wan\"}[5m])",
-          "legendFormat": "WAN RX Drops (pkt/s)",
-          "refId": "B"
-        },
-        {
-          "expr": "rate(node_network_transmit_drop_total{job=\"openwrt-monitoring\",instance=\"$instance\",device=\"pppoe-wan\"}[5m])",
-          "legendFormat": "WAN TX Drops (pkt/s)",
-          "refId": "C"
-        }
-      ],
-      "title": "WAN Packet Loss & Retransmission Trend",
-      "type": "timeseries"
-    },
-    {
       "id": 15,
-      "title": "System Consumption Analysis",
+      "title": "System Resource Usage",
       "type": "row",
       "collapsed": false,
       "gridPos": {
@@ -927,7 +926,7 @@
     },
     {
       "id": 16,
-      "title": "CPU Basic",
+      "title": "CPU Usage (5m, %)",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -1006,7 +1005,7 @@
     },
     {
       "id": 17,
-      "title": "CPU",
+      "title": "CPU Usage Breakdown (5m, %)",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -1080,7 +1079,7 @@
     },
     {
       "id": 18,
-      "title": "Memory Basic",
+      "title": "Memory Usage (5m, %)",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -1144,7 +1143,7 @@
     },
     {
       "id": 19,
-      "title": "Memory Stack",
+      "title": "Memory Breakdown (bytes)",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -1228,7 +1227,7 @@
     },
     {
       "id": 20,
-      "title": "Capacity & Quality",
+      "title": "Network Capacity & Quality",
       "type": "row",
       "collapsed": false,
       "gridPos": {
@@ -1241,7 +1240,7 @@
     },
     {
       "id": 21,
-      "title": "WAN Utilization % (5m)",
+      "title": "WAN Link Utilization (5m, %)",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -1251,7 +1250,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 46
+        "y": 53
       },
       "fieldConfig": {
         "defaults": {
@@ -1291,7 +1290,7 @@
       "targets": [
         {
           "refId": "A",
-          "legendFormat": "WAN Utilization",
+          "legendFormat": "WAN Utilization (%)",
           "expr": "100 * ((rate(node_network_receive_bytes_total{job=\"openwrt-monitoring\",instance=\"$instance\",device=\"pppoe-wan\"}[5m]) + rate(node_network_transmit_bytes_total{job=\"openwrt-monitoring\",instance=\"$instance\",device=\"pppoe-wan\"}[5m])) * 8) / ($wan_capacity_mbps * 1000000)"
         }
       ]
@@ -1305,7 +1304,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 60
+        "y": 61
       },
       "panels": []
     }
