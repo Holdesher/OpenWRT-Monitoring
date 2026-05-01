@@ -2,9 +2,19 @@
 
 # Router
 
-1. Перейдите "Служба" -> "Терминал" и подключаем SSH `ssh root@<ROUTER_IP>`.
-2. Обновите систему `opkg update`.
-3. Установка пакетов `prometheus`:
+1. Перейдите "Служба" -> "Терминал" или подключитесь по SSH:
+
+```bash
+`ssh root@<ROUTER_IP>`
+```
+
+2. Обновите систему:
+
+```bash
+opkg update
+```
+
+3. Установите пакетов `prometheus`:
 
 ```bash
 opkg install prometheus-node-exporter-lua \
@@ -15,7 +25,11 @@ opkg install prometheus-node-exporter-lua \
   prometheus-node-exporter-lua-wifi_stations
 ```
 
-4. Настройка конфига `nano /etc/config/prometheus-node-exporter-lua`:
+4. Настройте конфигурацию:
+
+```bash
+nano /etc/config/prometheus-node-exporter-lua
+```
 
 ```bash
 config prometheus-node-exporter-lua 'main'
@@ -24,22 +38,25 @@ config prometheus-node-exporter-lua 'main'
     option listen_interface 'lan'
 ```
 
-5. Перезапуск сервиса `/etc/init.d/prometheus-node-exporter-lua restart`.
-6. Проверка данных:
+5. Перезапустите сервис:
+
+```bash
+/etc/init.d/prometheus-node-exporter-lua restart
+```
+
+6. Проверка доступа:
 
 ```bash
 netstat -tulpn | grep 9100
-
-curl localhost:9100/metrics
 ```
 
-7. Проверка доступа в локальной сети:
+7. Проверьте доступ в локальной сети:
 
 ```bash
 curl http://<ROUTER_IP>:9100/metrics
 ```
 
-8. Обновите target в `prometheus/etc/prometheus.yml`:
+8. Укажите IP-роутера в `prometheus/etc/prometheus.yml`:
 
 ```yaml
 - job_name: 'openwrt-monitoring'
