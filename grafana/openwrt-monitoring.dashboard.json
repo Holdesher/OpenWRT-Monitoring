@@ -69,7 +69,8 @@
         }
       ],
       "title": "Router Status",
-      "type": "stat"
+      "type": "stat",
+      "description": "Shows whether the router exporter is reachable (UP) or not (DOWN). Act immediately if DOWN for more than 1-2 minutes."
     },
     {
       "datasource": {
@@ -120,7 +121,8 @@
         }
       ],
       "title": "Uptime (days)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Shows how long the router has been running since the last reboot. Unexpectedly low uptime can indicate crashes, power issues, or manual restarts."
     },
     {
       "datasource": {
@@ -179,7 +181,8 @@
         }
       ],
       "title": "CPU Used (%)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Shows total CPU usage. Investigate if usage stays above 70%; treat above 90% as critical if sustained."
     },
     {
       "datasource": {
@@ -238,7 +241,8 @@
         }
       ],
       "title": "RAM Used (%)",
-      "type": "stat"
+      "type": "stat",
+      "description": "Shows memory pressure on the router. Investigate if usage stays above 75%; above 90% usually requires immediate action."
     },
     {
       "datasource": {
@@ -288,14 +292,15 @@
         }
       ],
       "title": "Wi-Fi Clients Total",
-      "type": "stat"
+      "type": "stat",
+      "description": "Shows how many Wi-Fi clients are currently connected. This is a load indicator only; use quality panels to diagnose user experience."
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "dfjz2m1e86xogb"
       },
-      "description": "Per-device activity and quality: signal, idle time, throughput, and issue score.",
+      "description": "Shows per-device signal, idle time, throughput, and issue score. Treat signal <= -70 dBm or long idle periods with active traffic as potential quality issues.",
       "fieldConfig": {
         "defaults": {},
         "overrides": [
@@ -623,7 +628,8 @@
         }
       ],
       "title": "Interface Traffic RX (bps)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Shows inbound traffic rate per selected interface. Investigate sustained spikes near known link limits or sudden traffic shifts from baseline."
     },
     {
       "datasource": {
@@ -661,7 +667,8 @@
         }
       ],
       "title": "Interface Traffic TX (bps)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Shows outbound traffic rate per selected interface. Investigate sustained spikes near known link limits or unusual burst patterns."
     },
     {
       "id": 20,
@@ -717,7 +724,8 @@
         }
       ],
       "title": "WAN Traffic (bps)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Shows WAN inbound and outbound throughput on the selected WAN interface. Use it to detect saturation, asymmetry, or sudden drops in external traffic."
     },
     {
       "datasource": {
@@ -761,14 +769,14 @@
       "title": "WAN Packet Drops (pps)",
       "type": "timeseries",
       "id": 25,
-      "description": "WAN packet drops on $wan_iface. Sustained growth indicates congestion, driver or link issues."
+      "description": "Shows packet drops on the selected WAN interface. Drops should stay near zero; sustained growth often indicates congestion, link, or driver issues."
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "dfjz2m1e86xogb"
       },
-      "description": "Tracks TCP retransmission ratio. Investigate if retransmission rate > 2% (critical > 5%).",
+      "description": "Shows the share of retransmitted TCP segments. Investigate if sustained above 2%; treat sustained above 5% as critical.",
       "fieldConfig": {
         "defaults": {
           "thresholds": {
@@ -811,7 +819,7 @@
       },
       "targets": [
         {
-          "expr": "100 * rate(node_netstat_Tcp_RetransSegs{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]) / clamp_min(rate(node_netstat_Tcp_OutSegs{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 1)",
+          "expr": "100 * (clamp_min(delta(node_netstat_Tcp_RetransSegs{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300) / clamp_min((clamp_min(delta(node_netstat_Tcp_OutSegs{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300), 1e-9)",
           "legendFormat": "TCP Retransmissions (%)",
           "refId": "A"
         }
@@ -861,17 +869,17 @@
       },
       "targets": [
         {
-          "expr": "rate(node_netstat_TcpExt_TCPTimeouts{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_TcpExt_TCPTimeouts{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "TCP Timeouts/s",
           "refId": "A"
         },
         {
-          "expr": "rate(node_netstat_TcpExt_TCPSynRetrans{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_TcpExt_TCPSynRetrans{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "TCP SYN Retrans/s",
           "refId": "B"
         },
         {
-          "expr": "rate(node_netstat_TcpExt_TCPAbortOnTimeout{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_TcpExt_TCPAbortOnTimeout{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "TCP Abort on Timeout/s",
           "refId": "C"
         }
@@ -879,7 +887,7 @@
       "title": "TCP Reliability Events (ops)",
       "type": "timeseries",
       "id": 26,
-      "description": "TCP health signals: timeouts, SYN retransmits, and timeout-driven aborts."
+      "description": "Shows TCP timeout, SYN retransmit, and timeout-abort event rates. Values should usually stay near zero; sustained increases indicate transport instability."
     },
     {
       "datasource": {
@@ -910,17 +918,17 @@
       },
       "targets": [
         {
-          "expr": "rate(node_netstat_Udp_InErrors{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_Udp_InErrors{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "UDP InErrors/s",
           "refId": "A"
         },
         {
-          "expr": "rate(node_netstat_Udp_RcvbufErrors{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_Udp_RcvbufErrors{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "UDP RcvbufErrors/s",
           "refId": "B"
         },
         {
-          "expr": "rate(node_netstat_Udp_NoPorts{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_Udp_NoPorts{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "UDP NoPorts/s",
           "refId": "C"
         }
@@ -928,14 +936,14 @@
       "title": "UDP Reliability Events (ops)",
       "type": "timeseries",
       "id": 27,
-      "description": "UDP receive path quality. Rcvbuf errors typically indicate socket buffer pressure."
+      "description": "Shows UDP receive-path error rates (input, buffer, and no-port events). Sustained non-zero values indicate pressure, drops, or service/listener mismatch."
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "dfjz2m1e86xogb"
       },
-      "description": "TCP connection quality context: reset and failed connect rates.",
+      "description": "Shows TCP reset and connection-failure context. Rising reset/failure rates over baseline indicate connection quality degradation.",
       "fieldConfig": {
         "defaults": {
           "unit": "ops"
@@ -961,22 +969,22 @@
       },
       "targets": [
         {
-          "expr": "rate(node_netstat_Tcp_OutRsts{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_Tcp_OutRsts{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "TCP OutRsts/s",
           "refId": "A"
         },
         {
-          "expr": "rate(node_netstat_Tcp_AttemptFails{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_Tcp_AttemptFails{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "TCP AttemptFails/s",
           "refId": "B"
         },
         {
-          "expr": "rate(node_netstat_Tcp_ActiveOpens{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_Tcp_ActiveOpens{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "TCP ActiveOpens/s",
           "refId": "C"
         },
         {
-          "expr": "rate(node_netstat_Tcp_PassiveOpens{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])",
+          "expr": "clamp_min(delta(node_netstat_Tcp_PassiveOpens{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m]), 0) / 300",
           "legendFormat": "TCP PassiveOpens/s",
           "refId": "D"
         }
@@ -1038,14 +1046,15 @@
         }
       ],
       "title": "LAN Traffic (bps)",
-      "type": "timeseries"
+      "type": "timeseries",
+      "description": "Shows LAN inbound and outbound throughput on the selected LAN interface. Use it to spot internal saturation, heavy hosts, or unexpected traffic drops."
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "dfjz2m1e86xogb"
       },
-      "description": "LAN packet drops on the selected LAN interface.",
+      "description": "Shows packet drops on the selected LAN interface. Drops should stay near zero; sustained growth indicates local congestion or interface problems.",
       "fieldConfig": {
         "defaults": {
           "unit": "pps"
@@ -1089,7 +1098,7 @@
         "type": "prometheus",
         "uid": "dfjz2m1e86xogb"
       },
-      "description": "Packet drops across all selected interfaces. RX and TX are shown separately per device to localize direction-specific loss.",
+      "description": "Shows inbound packet drops across selected interfaces by device. Persistent non-zero values help localize where receive-path loss is happening.",
       "fieldConfig": {
         "defaults": {
           "thresholds": {
@@ -1145,7 +1154,7 @@
         "type": "prometheus",
         "uid": "dfjz2m1e86xogb"
       },
-      "description": "Packet drops across all selected interfaces. RX and TX are shown separately per device to localize direction-specific loss.",
+      "description": "Shows outbound packet drops across selected interfaces by device. Persistent non-zero values help localize where transmit-path loss is happening.",
       "fieldConfig": {
         "defaults": {
           "thresholds": {
@@ -1286,7 +1295,8 @@
           "expr": "100 * sum(irate(node_cpu_seconds_total{mode!~\"idle|user|system|iowait|irq|softirq\",job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])) / clamp_min(sum(irate(node_cpu_seconds_total{job=\"openwrt-monitoring\",instance=\"$instance\"}[5m])), 1e-9)",
           "legendFormat": "Busy Other"
         }
-      ]
+      ],
+      "description": "Breaks CPU usage into user, system, iowait, IRQ, and other modes. Sustained iowait or IRQ spikes usually point to storage, network, or driver bottlenecks."
     },
     {
       "id": 19,
@@ -1370,7 +1380,8 @@
           "expr": "node_memory_Buffers_bytes{job=\"openwrt-monitoring\",instance=\"$instance\"}",
           "legendFormat": "Buffers"
         }
-      ]
+      ],
+      "description": "Shows memory usage components (apps, slab, cache, buffers, and more). Investigate persistent growth in one component when free memory trends down."
     }
   ],
   "refresh": "30s",
@@ -1442,13 +1453,14 @@
         },
         "refresh": 1,
         "multi": false,
-        "includeAll": false,
+        "includeAll": true,
         "current": {
-          "selected": false,
-          "text": "pppoe-wan",
-          "value": "pppoe-wan"
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
         },
-        "sort": 1
+        "sort": 1,
+        "allValue": ".*"
       },
       {
         "name": "lan_iface",
@@ -1465,13 +1477,14 @@
         },
         "refresh": 1,
         "multi": false,
-        "includeAll": false,
+        "includeAll": true,
         "current": {
-          "selected": false,
-          "text": "br-lan",
-          "value": "br-lan"
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
         },
-        "sort": 1
+        "sort": 1,
+        "allValue": ".*"
       }
     ]
   },
