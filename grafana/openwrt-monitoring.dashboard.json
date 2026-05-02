@@ -1381,30 +1381,6 @@
   "templating": {
     "list": [
       {
-        "name": "ifaces_all",
-        "label": "Interfaces (All)",
-        "type": "query",
-        "datasource": {
-          "type": "prometheus",
-          "uid": "dfjz2m1e86xogb"
-        },
-        "definition": "label_values(node_network_receive_bytes_total{job=\"openwrt-monitoring\",instance=\"$instance\",device!=\"lo\"}, device)",
-        "query": {
-          "query": "label_values(node_network_receive_bytes_total{job=\"openwrt-monitoring\",instance=\"$instance\",device!=\"lo\"}, device)",
-          "refId": "PromVar_ifaces_all"
-        },
-        "refresh": 1,
-        "multi": true,
-        "includeAll": true,
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "sort": 1,
-        "allValue": ".*"
-      },
-      {
         "current": {
           "selected": false,
           "text": "Select instance",
@@ -1428,8 +1404,32 @@
         "type": "query"
       },
       {
+        "name": "ifaces_all",
+        "label": "Interfaces",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "dfjz2m1e86xogb"
+        },
+        "definition": "label_values(node_network_receive_bytes_total{job=\"openwrt-monitoring\",instance=\"$instance\",device!=\"lo\"}, device)",
+        "query": {
+          "query": "label_values(node_network_receive_bytes_total{job=\"openwrt-monitoring\",instance=\"$instance\",device!=\"lo\"}, device)",
+          "refId": "PromVar_ifaces_all"
+        },
+        "refresh": 1,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "sort": 1,
+        "allValue": ".*"
+      },
+      {
         "name": "wan_iface",
-        "label": "WAN Interface",
+        "label": "WAN",
         "type": "query",
         "datasource": {
           "type": "prometheus",
@@ -1452,7 +1452,7 @@
       },
       {
         "name": "lan_iface",
-        "label": "LAN Interface",
+        "label": "LAN",
         "type": "query",
         "datasource": {
           "type": "prometheus",
