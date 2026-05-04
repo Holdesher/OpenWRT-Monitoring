@@ -120,7 +120,7 @@
           "refId": "A"
         }
       ],
-      "title": "Uptime (days)",
+      "title": "Uptime",
       "type": "stat",
       "description": "Shows how long the router has been running since the last reboot. Unexpectedly low uptime can indicate crashes, power issues, or manual restarts."
     },
@@ -180,7 +180,7 @@
           "refId": "A"
         }
       ],
-      "title": "CPU Used (%)",
+      "title": "CPU Used",
       "type": "stat",
       "description": "Shows total CPU usage. Investigate if usage stays above 70%; treat above 90% as critical if sustained."
     },
@@ -240,7 +240,7 @@
           "refId": "A"
         }
       ],
-      "title": "RAM Used (%)",
+      "title": "RAM Used",
       "type": "stat",
       "description": "Shows memory pressure on the router. Investigate if usage stays above 75%; above 90% usually requires immediate action."
     },
@@ -627,7 +627,7 @@
           "refId": "A"
         }
       ],
-      "title": "Interface Traffic RX (bps)",
+      "title": "Inbound Traffic [Interfaces]",
       "type": "timeseries",
       "description": "Shows inbound traffic rate per selected interface. Investigate sustained spikes near known link limits or sudden traffic shifts from baseline."
     },
@@ -666,7 +666,7 @@
           "refId": "A"
         }
       ],
-      "title": "Interface Traffic TX (bps)",
+      "title": "Outbound Traffic [Interfaces]",
       "type": "timeseries",
       "description": "Shows outbound traffic rate per selected interface. Investigate sustained spikes near known link limits or unusual burst patterns."
     },
@@ -723,7 +723,7 @@
           "refId": "B"
         }
       ],
-      "title": "WAN Traffic (bps)",
+      "title": "Traffic [WAN]",
       "type": "timeseries",
       "description": "Shows WAN inbound and outbound throughput on the selected WAN interface. Use it to detect saturation, asymmetry, or sudden drops in external traffic."
     },
@@ -766,7 +766,7 @@
           "refId": "B"
         }
       ],
-      "title": "WAN Packet Drops (pps)",
+      "title": "Packet Drops [WAN]",
       "type": "timeseries",
       "id": 25,
       "description": "Shows packet drops on the selected WAN interface. Drops should stay near zero; sustained growth often indicates congestion, link, or driver issues."
@@ -824,7 +824,7 @@
           "refId": "A"
         }
       ],
-      "title": "TCP Retransmission Rate (%)",
+      "title": "TCP Retransmission Rate",
       "type": "timeseries"
     },
     {
@@ -884,7 +884,7 @@
           "refId": "C"
         }
       ],
-      "title": "TCP Reliability Events (ops)",
+      "title": "TCP Reliability Events",
       "type": "timeseries",
       "id": 26,
       "description": "Shows TCP timeout, SYN retransmit, and timeout-abort event rates. Values should usually stay near zero; sustained increases indicate transport instability."
@@ -933,7 +933,7 @@
           "refId": "C"
         }
       ],
-      "title": "UDP Reliability Events (ops)",
+      "title": "UDP Reliability Events",
       "type": "timeseries",
       "id": 27,
       "description": "Shows UDP receive-path error rates (input, buffer, and no-port events). Sustained non-zero values indicate pressure, drops, or service/listener mismatch."
@@ -989,7 +989,7 @@
           "refId": "D"
         }
       ],
-      "title": "TCP Connection Events (ops)",
+      "title": "TCP Connection Events",
       "type": "timeseries"
     },
     {
@@ -1045,7 +1045,7 @@
           "refId": "B"
         }
       ],
-      "title": "LAN Traffic (bps)",
+      "title": "Traffic [LAN]",
       "type": "timeseries",
       "description": "Shows LAN inbound and outbound throughput on the selected LAN interface. Use it to spot internal saturation, heavy hosts, or unexpected traffic drops."
     },
@@ -1090,7 +1090,7 @@
           "refId": "B"
         }
       ],
-      "title": "LAN Packet Drops (pps)",
+      "title": "Packet Drops [LAN]",
       "type": "timeseries"
     },
     {
@@ -1146,7 +1146,7 @@
           "refId": "A"
         }
       ],
-      "title": "Interface Packet Drops RX (pps)",
+      "title": "Inbound Drops [Interfaces]",
       "type": "timeseries"
     },
     {
@@ -1202,7 +1202,7 @@
           "refId": "A"
         }
       ],
-      "title": "Interface Packet Drops TX (pps)",
+      "title": "Outbound Drops [Interfaces]",
       "type": "timeseries"
     },
     {
@@ -1220,7 +1220,7 @@
     },
     {
       "id": 16,
-      "title": "CPU Usage by Mode (%)",
+      "title": "CPU Usage",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -1300,7 +1300,7 @@
     },
     {
       "id": 19,
-      "title": "Memory Breakdown (bytes)",
+      "title": "Memory Breakdown",
       "type": "timeseries",
       "datasource": {
         "type": "prometheus",
@@ -1393,26 +1393,35 @@
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "Select instance",
-          "value": ""
+          "selected": true,
+          "text": "192.168.1.1:9100",
+          "value": "192.168.1.1:9100"
         },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "dfjz2m1e86xogb"
-        },
-        "definition": "query_result(up{job=\"openwrt-monitoring\"} == 1)",
+        "hide": 0,
         "includeAll": false,
         "label": "Instance",
         "multi": false,
         "name": "instance",
-        "query": {
-          "query": "query_result(up{job=\"openwrt-monitoring\"} == 1)",
-          "refId": "PromVarInstance"
-        },
-        "regex": "/instance=\"([^\"]+)\"/",
-        "refresh": 1,
-        "type": "query"
+        "options": [
+          {
+            "selected": false,
+            "text": "192.168.0.1:9100",
+            "value": "192.168.0.1:9100"
+          },
+          {
+            "selected": true,
+            "text": "192.168.1.1:9100",
+            "value": "192.168.1.1:9100"
+          },
+          {
+            "selected": false,
+            "text": "192.168.2.1:9100",
+            "value": "192.168.2.1:9100"
+          }
+        ],
+        "query": "192.168.0.1:9100,192.168.1.1:9100,192.168.2.1:9100",
+        "type": "custom",
+        "allowCustomValue": true
       },
       {
         "name": "ifaces_all",
@@ -1453,14 +1462,13 @@
         },
         "refresh": 1,
         "multi": false,
-        "includeAll": true,
+        "includeAll": false,
         "current": {
           "selected": true,
-          "text": "All",
-          "value": "$__all"
+          "text": "br-lan",
+          "value": "br-lan"
         },
-        "sort": 1,
-        "allValue": ".*"
+        "sort": 1
       },
       {
         "name": "lan_iface",
@@ -1477,14 +1485,13 @@
         },
         "refresh": 1,
         "multi": false,
-        "includeAll": true,
+        "includeAll": false,
         "current": {
           "selected": true,
-          "text": "All",
-          "value": "$__all"
+          "text": "br-lan",
+          "value": "br-lan"
         },
-        "sort": 1,
-        "allValue": ".*"
+        "sort": 1
       }
     ]
   },
