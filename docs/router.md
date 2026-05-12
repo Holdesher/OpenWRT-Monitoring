@@ -2,6 +2,8 @@
 
 # Router
 
+## Setup
+
 1. Перейдите "Служба" -> "Терминал" или подключитесь по SSH:
 
 ```bash
@@ -17,12 +19,7 @@ opkg update
 3. Установите пакетов `prometheus`:
 
 ```bash
-opkg install prometheus-node-exporter-lua \
-  prometheus-node-exporter-lua-nat_traffic \
-  prometheus-node-exporter-lua-netstat \
-  prometheus-node-exporter-lua-openwrt \
-  prometheus-node-exporter-lua-wifi \
-  prometheus-node-exporter-lua-wifi_stations
+opkg install prometheus-node-exporter-lua prometheus-node-exporter-lua-nat_traffic prometheus-node-exporter-lua-netstat prometheus-node-exporter-lua-openwrt prometheus-node-exporter-lua-wifi prometheus-node-exporter-lua-wifi_stations
 ```
 
 4. Настройте конфигурацию:
@@ -44,19 +41,43 @@ config prometheus-node-exporter-lua 'main'
 /etc/init.d/prometheus-node-exporter-lua restart
 ```
 
-6. Проверка доступа:
+## Addons
+
+- Ошибка связанная с `uhttpd_lua`, можно исправить:
+
+```bash
+opkg update
+opkg install uhttpd-mod-lua lua
+```
+
+```bash
+/etc/init.d/uhttpd restart
+/etc/init.d/prometheus-node-exporter-lua restart
+```
+
+## Checker
+
+- Проверка доступа:
 
 ```bash
 netstat -tulpn | grep 9100
 ```
 
-7. Проверьте доступ в локальной сети:
+- Просмотр логов:
+
+```bash
+logread | tail -n 120
+```
+
+- Проверьте доступ в локальной сети:
 
 ```bash
 curl http://<ROUTER_IP>:9100/metrics
 ```
 
-8. Укажите IP-роутера в `prometheus/etc/prometheus.yml`:
+## Setting
+
+- Укажите IP-роутера в `prometheus/etc/prometheus.yml`:
 
 ```yaml
 - job_name: 'openwrt-monitoring'
