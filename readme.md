@@ -1,4 +1,4 @@
-<h1 align="center">OpenWRT Monitoring</h1>
+<h1 align="center">OpenWRT-Monitoring</h1>
 
 ## Docs
 
@@ -11,3 +11,8 @@
 - [OpenWRT-Custom](grafana/openwrt-monitoring.dashboard.json)
 - [OpenWRT-Default](https://grafana.com/grafana/dashboards/11147)
 - [OpenWRT-ASUS](https://grafana.com/grafana/dashboards/18153)
+
+## Materials
+
+- [OpenWRT-Docs](https://github.com/Holdesher/OpenWRT-Docs)
+- [OpenWRT-Specification](https://openwrt.org)

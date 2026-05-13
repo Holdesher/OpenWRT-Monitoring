@@ -74,14 +74,3 @@ logread | tail -n 120
 ```bash
 curl http://<ROUTER_IP>:9100/metrics
 ```
-
-## Setting
-
-- Укажите IP-роутера в `prometheus/etc/prometheus.yml`:
-
-```yaml
-- job_name: 'openwrt-monitoring'
-  scrape_interval: 30s
-  static_configs:
-    - targets: ['<ROUTER_IP>:9100']
-```
