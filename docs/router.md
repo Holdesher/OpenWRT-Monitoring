@@ -1,5 +1,3 @@
-[BACK](../)
-
 # Router
 
 ## Setup
@@ -7,7 +5,7 @@
 1. Перейдите "Служба" -> "Терминал" или подключитесь по SSH:
 
 ```bash
-`ssh root@<ROUTER_IP>`
+ssh root@192.168.1.1
 ```
 
 2. Обновите систему:
@@ -41,20 +39,6 @@ config prometheus-node-exporter-lua 'main'
 /etc/init.d/prometheus-node-exporter-lua restart
 ```
 
-## Addons
-
-- Ошибка связанная с `uhttpd_lua`, можно исправить:
-
-```bash
-opkg update
-opkg install uhttpd-mod-lua lua
-```
-
-```bash
-/etc/init.d/uhttpd restart
-/etc/init.d/prometheus-node-exporter-lua restart
-```
-
 ## Checker
 
 - Проверка доступа:
@@ -72,5 +56,19 @@ logread | tail -n 120
 - Проверьте доступ в локальной сети:
 
 ```bash
-curl http://<ROUTER_IP>:9100/metrics
+curl http://192.168.1.1:9100/metrics
+```
+
+## FAQ
+
+- Ошибка связанная с `uhttpd_lua`, можно исправить:
+
+```bash
+opkg update
+opkg install uhttpd-mod-lua lua
+```
+
+```bash
+/etc/init.d/uhttpd restart
+/etc/init.d/prometheus-node-exporter-lua restart
 ```

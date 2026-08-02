@@ -1,5 +1,3 @@
-[BACK](../)
-
 # Setting
 
 1. Укажите IP-роутера в `prometheus/etc/prometheus.yml`:
@@ -8,7 +6,7 @@
 - job_name: 'openwrt-monitoring'
   scrape_interval: 30s
   static_configs:
-    - targets: ['<ROUTER_IP>:9100']
+    - targets: ['192.168.1.1:9100']
 ```
 
 2. Укажите данные в `.env`:
